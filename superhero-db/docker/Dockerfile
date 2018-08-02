@@ -1,0 +1,5 @@
+FROM mysql:5.6
+
+ENV MYSQL_DATABASE=superhero_db
+ENV MYSQL_USER=superhero
+ENV MYSQL_PASSWORD=XcBjfjDDjxeyFBoaEPhG14wEzc6Ja+Xx+hNPrJyQT88=

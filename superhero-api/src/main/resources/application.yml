@@ -1,0 +1,8 @@
+application:
+  users:
+    - username: superhero_user_access
+      password: 12c53d96-d609-4841-ba91-52f065a93e66
+      roles: USER
+    - username: superhero_admin_access
+      password: 8c1b2d8f-1976-453e-8219-faf6e214986f
+      roles: ADMIN

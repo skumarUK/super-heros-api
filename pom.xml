@@ -1,0 +1,190 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+	<modelVersion>4.0.0</modelVersion>
+
+	<name>superherows</name>
+	<description>Super Hero Restful API for Payworks</description>
+	<groupId>com.payworks</groupId>
+	<artifactId>superherows</artifactId>
+	<version>1.0.0-SNAPSHOT</version>
+	<packaging>pom</packaging>
+	<parent>
+		<groupId>org.springframework.boot</groupId>
+		<artifactId>spring-boot-starter-parent</artifactId>
+		<version>2.0.0.BUILD-SNAPSHOT</version>
+		<relativePath /> <!-- lookup parent from repository -->
+	</parent>
+
+	<modules>
+		<module>superhero-api</module>
+		<module>superhero-db</module>
+	</modules>
+
+	<properties>
+		<!-- Set docker.skip to true to disable Docker. Useful to build apps on 
+			systems where Docker is not installed. -->
+		<docker.skip>true</docker.skip>
+		<docker.repository>docker.io</docker.repository>
+		<docker.repository.push>false</docker.repository.push>
+		<docker.image.prefix>payworks</docker.image.prefix>
+	</properties>
+
+	<distributionManagement>
+		<repository>
+			<id>disasterarea-ftp</id>
+			<url>ftp://{host}/website/maven</url>
+		</repository>
+	</distributionManagement>
+
+
+	<build>
+		<pluginManagement>
+			<plugins>
+
+				<plugin>
+					<groupId>com.spotify</groupId>
+					<artifactId>docker-maven-plugin</artifactId>
+					<configuration>
+						<imageName>${docker.image.prefix}/${project.artifactId}</imageName>
+						<baseImage>java:openjdk-8-jdk-alpine</baseImage>
+						<entryPoint>["java","-jar","/${project.build.finalName}.jar"]</entryPoint>
+						<imageTags>
+							<imageTag>${project.version}</imageTag>
+							<imageTag>latest</imageTag>
+						</imageTags>
+						<serverId>docker-hub</serverId>
+						<skipDockerBuild>${docker.skip}</skipDockerBuild>
+						<resources>
+							<!-- copy the service's jar file from target into the root directory 
+								of the image -->
+							<resource>
+								<targetPath>/</targetPath>
+								<directory>${project.build.directory}</directory>
+								<include>${project.build.finalName}.jar</include>
+							</resource>
+							<!-- Copy contents of project's docker directory, if it exists. Used 
+								to pull in docker build specific application.properties settings -->
+							<resource>
+								<targetPath>/</targetPath>
+								<directory>${project.basedir}/docker</directory>
+								<include>*</include>
+							</resource>
+						</resources>
+					</configuration>
+					<executions>
+						<execution>
+							<id>build-image</id>
+							<phase>package</phase>
+							<goals>
+								<goal>build</goal>
+							</goals>
+						</execution>
+						<execution>
+							<id>tag-image-version</id>
+							<phase>deploy</phase>
+							<goals>
+								<goal>tag</goal>
+							</goals>
+							<configuration>
+								<image>${docker.image.prefix}/${project.artifactId}</image>
+								<newName>${docker.repository}/${docker.image.prefix}/${project.artifactId}:${project.version}</newName>
+								<pushImage>${docker.repository.push}</pushImage>
+							</configuration>
+						</execution>
+						<execution>
+							<id>tag-image-latest</id>
+							<phase>deploy</phase>
+							<goals>
+								<goal>tag</goal>
+							</goals>
+							<configuration>
+								<image>${docker.image.prefix}/${project.artifactId}</image>
+								<newName>${docker.repository}/${docker.image.prefix}/${project.artifactId}:latest</newName>
+								<pushImage>${docker.repository.push}</pushImage>
+							</configuration>
+						</execution>
+					</executions>
+				</plugin>
+				<plugin>
+					<!-- run integration tests -->
+					<groupId>org.apache.maven.plugins</groupId>
+					<artifactId>maven-failsafe-plugin</artifactId>
+					<version>2.20.1</version>
+					<dependencies>
+						<dependency>
+							<groupId>org.apache.maven.surefire</groupId>
+							<artifactId>surefire-junit47</artifactId>
+							<version>2.20.1</version>
+						</dependency>
+					</dependencies>
+					<executions>
+						<execution>
+							<id>integration-test</id>
+							<phase>integration-test</phase>
+							<goals>
+								<goal>integration-test</goal>
+							</goals>
+						</execution>
+						<execution>
+							<id>verify</id>
+							<phase>verify</phase>
+							<goals>
+								<goal>verify</goal>
+							</goals>
+						</execution>
+					</executions>
+				</plugin>
+
+			</plugins>
+		</pluginManagement>
+
+		<extensions>
+			<!-- Enabling the use of FTP -->
+			<extension>
+				<groupId>org.apache.maven.wagon</groupId>
+				<artifactId>wagon-ftp</artifactId>
+				<version>2.9</version>
+			</extension>
+		</extensions>
+	</build>
+
+	<repositories>
+		<repository>
+			<id>spring-snapshots</id>
+			<name>Spring Snapshots</name>
+			<url>https://repo.spring.io/snapshot</url>
+			<snapshots>
+				<enabled>true</enabled>
+			</snapshots>
+		</repository>
+		<repository>
+			<id>spring-milestones</id>
+			<name>Spring Milestones</name>
+			<url>https://repo.spring.io/milestone</url>
+			<snapshots>
+				<enabled>false</enabled>
+			</snapshots>
+		</repository>
+	</repositories>
+	<pluginRepositories>
+		<pluginRepository>
+			<id>spring-snapshots</id>
+			<name>Spring Snapshots</name>
+			<url>https://repo.spring.io/snapshot</url>
+			<snapshots>
+				<enabled>true</enabled>
+			</snapshots>
+		</pluginRepository>
+		<pluginRepository>
+			<id>spring-milestones</id>
+			<name>Spring Milestones</name>
+			<url>https://repo.spring.io/milestone</url>
+			<snapshots>
+				<enabled>false</enabled>
+			</snapshots>
+		</pluginRepository>
+	</pluginRepositories>
+
+
+</project>

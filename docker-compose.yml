@@ -1,0 +1,21 @@
+#
+# Docker compose file for the latest container builds
+#
+database:
+  environment:
+    MYSQL_ROOT_PASSWORD: 75de6803-2948-4d64-a599-d02bc983081c
+  # Expose port 3306 to host. Not for the application but
+  # handy to inspect the database from the host machine.
+  ports:
+    - "3306:3306"
+  image: payworks/superhero-db:latest
+  restart: always
+api:
+  image: payworks/superhero-api:latest
+  links:
+    - database:superhero-db
+  # Expose service to host. Not for the application but
+  # handy to call the API direct from the host machine.
+  ports:
+    - "443:443"
+  restart: always

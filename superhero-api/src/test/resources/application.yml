@@ -1,0 +1,5 @@
+application:
+  users:
+    - username: superhero_test_user_access
+      password: 93c58381-7f30-4191-829c-6b7f51fd0755
+      roles: USER
